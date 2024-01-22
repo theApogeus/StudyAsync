@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block 'stylesheets' %}
+    <link rel="stylesheet" href="{% static 'flashcards/css/novo_flashcard.css' %}">
+{% endblock 'stylesheets' %}
+
+{% block 'conteudo' %}
+
+    {% include "partials/header.html" %}
+
+    <div class="container">
+        <br>
+        <br>
+        <div class="row">
+            
+            <div class="col-md">
+                
+                <div class="box-form">
+                    <form action="{% url 'novo_flashcard' %}" method="POST">
+                        {% csrf_token %}
+                        <h3>Novo flashcard</h3>
+                        {% if messages %}
+                            <br>
+                            {% for message in messages %}
+                                <section class="alert {{ message.tags }}">
+                                    {{ message }}
+                                </section>
+                            {% endfor %}
+                        {% endif %}
+                        <br>
+                        <label>Pergunta</label>
+                        <input type="text" class="form-control" placeholder="pergunta" name="pergunta">
+                        <br>
+                        <label>Resposta</label>
+                        <textarea class="form-control" name="resposta"></textarea>
+                        <br>
+                        <div class="row">
+                            
+                                <div class="col-md">
+                                    <label for="">Categoria</label>
+                                    <select class="form-select" name="categoria">
+                                        {% for categoria in categorias %}
+                                            <option value="{{ categoria.id }}">
+                                                {{ categoria.nome }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md">
+                                    <label for="">Dificuldade</label>
+                                    <select class="form-select" name="dificuldade">
+                                        {% for dificuldade in dificuldades %}
+                                            <option value="{{ dificuldade.0 }}">
+                                                {{ dificuldade.1 }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            
+                        </div>
+                        <br>
+                        <br>
+                        <input type="submit" value="Enviar" class="btn-cadastro">
+                        <br>
+                    </form>
+                </div>
+
+            </div>
+            
+            <div class="col-md">
+                <form action="{% url "novo_flashcard" %}" method="GET">
+                    <div class="row">
+                        <div class="col-md">
+                            <label for="">Categoria</label>
+                            <select name="categoria" id="" class="form-select">
+                                <option value="">Todas as categorias</option>
+                                {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                                {% endfor %} 
+                            </select>
+                        </div>
+                        <div class="col-md">
+                            <label for="">Dificuldade</label>
+                            <select name="dificuldade" id="" class="form-select">
+                                <option value="">Todas as dificuldades</option>
+                                {% for dificuldade in dificuldades %}
+                                    <option value="{{ dificuldade.0 }}">{{ dificuldade.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md">
+                            <br>
+                            <input type="submit" style="width: 100%" value="Filtrar" class="btn-cadastro">
+                        </div>
+                    </div>
+
+                </form>
+
+                <br>
+
+                <div class="box-flashcards">
+                    {% for flash in flashcards %}
+                        <div class="box-new-flashcard" onclick="flip_card({{ flash.id }})">
+                            <div class="flashcard ">
+
+                                <div class="flashcard-categoria">
+                                    {{ flash.categoria }}
+                                </div>
+
+                                <a href="{% url 'deletar_flashcard' flash.id %}"><i class='icone-exit bx bx-x-circle'></i></a>
+                                <br>
+                                <br>
+                                <div class="flashcard-box-item">
+                                    <p class="flashcard-item">{{ flash.pergunta }} ?</p>
+                                </div>
+                                
+                            </div>
+                            <div class="resposta-flashcard" id="{{ flash.id }}">
+                                {{ flash.resposta }}
+                            </div>
+                        </div>
+                        <br>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+{% endblock 'conteudo' %}
+
+{% block 'javascripts' %}
+    <script src="{% static 'flashcards/js/flashcard.js' %}"></script>
+{% endblock 'javascripts' %}
