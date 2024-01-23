@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.http import HttpResponse, Http404
 
 def novo_flashcard(request):
-  
   if not request.user.is_authenticated:
     return redirect('/usuarios/login')
   
@@ -50,6 +49,9 @@ def novo_flashcard(request):
   
 
 def deletar_flashcard(request, id):
+  if not request.user.is_authenticated:
+    return redirect('/usuarios/login')
+
   flashcard = Flashcard.objects.get(id = id)
   # TODO: Fazer a Validação de Segurança
   # Dica: request.user
@@ -62,6 +64,9 @@ def deletar_flashcard(request, id):
 
 
 def iniciar_desafio(request):
+  if not request.user.is_authenticated:
+    return redirect('/usuarios/login')
+   
   if request.method == 'GET':
     categorias = Categoria.objects.all()
     dificuldades = Flashcard.DIFICULDADE_CHOICES
@@ -111,6 +116,9 @@ def iniciar_desafio(request):
   
 
 def listar_desafio(request):
+  if not request.user.is_authenticated:
+    return redirect('/usuarios/login')
+   
   desafios = Desafio.objects.filter(user = request.user)
   # TODO: Desenvolver os Status
   # TODO: Desenvolver os Filtros
@@ -118,6 +126,9 @@ def listar_desafio(request):
 
 
 def desafio(request, id):
+  if not request.user.is_authenticated:
+    return redirect('/usuarios/login')
+   
   desafio = Desafio.objects.get(id = id)
   if not desafio.user == request.user:
     raise Http404()
@@ -133,6 +144,9 @@ def desafio(request, id):
 
 
 def responder_flashcard(request, id):
+  if not request.user.is_authenticated:
+    return redirect('/usuarios/login')
+  
   flashcard_desafio = FlashcardDesafio.objects.get(id = id)
   acertou = request.GET.get('acertou')
   desafio_id = request.GET.get('desafio_id')
@@ -147,26 +161,29 @@ def responder_flashcard(request, id):
 
 
 def relatorio(request, id):
-    desafio = Desafio.objects.get(id = id)
+  if not request.user.is_authenticated:
+    return redirect('/usuarios/login')
+  
+  desafio = Desafio.objects.get(id = id)
 
-    acertos = desafio.flashcards.filter(respondido=True).filter(acertou=True).count()
-    erros = desafio.flashcards.filter(respondido=True).filter(acertou=False).count()
-    # faltantes = desafio.flashcards.filter(respondido=False).count()
-    dados1 = [acertos, erros]
+  acertos = desafio.flashcards.filter(respondido=True).filter(acertou=True).count()
+  erros = desafio.flashcards.filter(respondido=True).filter(acertou=False).count()
+  # faltantes = desafio.flashcards.filter(respondido=False).count()
+  dados1 = [acertos, erros]
 
-    categorias = desafio.categoria.all()
-    nome_categoria = [i.nome for i in categorias]
-    #for i in categorias:
-    #  nome_categoria.append(i.nome)
+  categorias = desafio.categoria.all()
+  nome_categoria = [i.nome for i in categorias]
+  #for i in categorias:
+  #  nome_categoria.append(i.nome)
 
-    dados2 = []
-    for categoria in categorias:
-        dados2.append(desafio.flashcards.filter(flashcard__categoria=categoria).filter(acertou=True).count())
+  dados2 = []
+  for categoria in categorias:
+      dados2.append(desafio.flashcards.filter(flashcard__categoria=categoria).filter(acertou=True).count())
 
-    #TODO: Fazer o Ranking
+  #TODO: Fazer o Ranking
 
-    return render(request, 'relatorio.html', {'desafio': desafio,
-                                              'dados1': dados1,
-                                              'categorias': nome_categoria,
-                                              'dados2': dados2})
+  return render(request, 'relatorio.html', {'desafio': desafio,
+                                            'dados1': dados1,
+                                            'categorias': nome_categoria,
+                                            'dados2': dados2})
 
